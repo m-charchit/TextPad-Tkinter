@@ -223,10 +223,10 @@ class gui(Tk):
         newwin.maxsize(350,100)
         def find():
             idx = '1.0'
-    
+            print(checkvar)
             self.text.tag_remove('found', '1.0', END) 
         
-            idx = self.text.search(findvar.get(), idx, nocase = 1, 
+            idx = self.text.search(findvar.get(), idx, nocase = checkvar.get() , # chage the variable
                                     stopindex = END)
             
             self.text.tag_add("found",idx,f"{idx}+{len(findvar.get())}c")
@@ -235,10 +235,12 @@ class gui(Tk):
                 self.text.tag_remove("found","1.0",END)
                 newwin.destroy()
             newwin.protocol("WM_DELETE_WINDOW", on_closing)
-            
+
+        checkvar = IntVar()
         Label(newwin,text="Find What:").grid(row=0,column=0,padx=5)
         Entry(newwin,textvariable=findvar).grid(row=0,column=1,padx=5)
         Button(newwin,text="Find",padx=10,command=find).grid(row=0,column=2,padx=10)
+        Checkbutton(newwin,text="Match Case",variable=checkvar,onvalue=1,offvalue=0).grid(row=3,column=1)
 
 
 
