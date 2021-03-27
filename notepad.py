@@ -44,13 +44,17 @@ class gui(Tk):
         m2.add_separator()
         m2.add_command(label="Find",command=lambda:self.find(None))
         m2.add_command(label="Replace",command=lambda:self.replace(None))
-
         m2.add_separator()
+        m2.add_command(label="Go To",command=lambda:self.goto(None))
+        m2.add_command(label="Insert Date and Time",command=lambda:self.time(None))
+
         self.filemenu.add_cascade(label="Edit",menu=m2)
         m3 = Menu(self.filemenu,tearoff=0)
         m3.add_checkbutton(label="Word Wrap",onvalue=1,offvalue= 0,variable= self.show,command=self.wrap)
+        m3.add_separator()
         m3.add_command(label="Dark Theme",command=lambda:self.theme(False,"b"))
         m3.add_command(label="Light Theme",command= lambda:self.theme(False,"w"))
+        m3.add_separator()
         m3.add_command(label="Font..",command= lambda:self.font(False))
         m3.add_command(label="Text Color",command= lambda:self.fontcolor(False))
         self.filemenu.add_cascade(label="Format",menu=m3)
@@ -86,6 +90,8 @@ class gui(Tk):
         self.bind_all("<Control-Key-d>",lambda eff : self.theme(eff,type="b"))
         self.bind_all("<Control-Key-l>",lambda eff : self.theme(eff,type="w"))
         self.bind_all("<Control-Key-C>",self.fontcolor)
+        self.bind_all("<Control-Key-g>",self.goto)
+        self.bind_all("<Control-Key-t>",self.time)
 
     
     def test(self,event):
@@ -93,6 +99,8 @@ class gui(Tk):
         # print(f"123{self.filepath}123")
         print(win.filepath == "" )
         print((win.openedtext != win.text.get(1.0, END) and fileopen==True))
+        print(self.text.get(1.0, END))
+
        
     # protocols 
     def protocols(self):
@@ -115,11 +123,13 @@ class gui(Tk):
         else:
             filename = self.filepath
         if filename != "":
-            with open(filename,"w") as f:
-                text2save = str(self.text.get(1.0, END))
-                f.write(text2save)
-                self.set_file_path(filename)
-
+            try:
+                with open(filename,"w") as f:
+                    text2save = str(self.text.get(1.0, END))
+                    f.write(text2save)
+                    self.set_file_path(filename)
+            except Exception as e:
+                pass
         
     def openfile(self,event):
         if win.text.get(1.0, END) != "\n" :
@@ -195,7 +205,7 @@ class gui(Tk):
 
     def theme(self,eff,type):
         if type == "b":
-            self.text.configure(bg="#a6a6a6")
+            self.text.configure(bg="#2b2b2b",fg="#d1dce8",insertbackground='white',selectbackground="blue", )
         elif type == "w":
             self.text.configure(bg="white")
     def fontcolor(self,event):
@@ -205,7 +215,7 @@ class gui(Tk):
     def helpwin(self):
         newwin = Toplevel(self)
         newwin.title("Help")
-        Label(newwin,text="Shortcut keys :- \n\nCtrl+shift+f - Select Font\n\nCtrl+w - Unwrap or Wrap Text\n\nCtrl+d - Enable Dark Mode\n\nCtrl+l - Enable light Mode\n\nctal+shift+c - Choose Font Color ",font="comicsans 10 italic bold").pack()
+        Label(newwin,text="Shortcut keys :- \n\nCtrl+shift+f - Select Font\n\nCtrl+w - Unwrap or Wrap Text\n\nCtrl+d - Enable Dark Mode\n\nCtrl+l - Enable light Mode\n\nctrl+shift+c - Choose Font Color\n\nctrl+g - To go to a specific line\n\nctrl+t - To insert date and time",font="comicsans 10 italic bold").pack()
         
     def aboutwin(self):
         newwin = Toplevel(self)
@@ -277,6 +287,30 @@ class gui(Tk):
         Entry(newwin,textvariable=replacevar).grid(row=1,column=1,padx=5,pady=10)
         Button(newwin,text="Find",padx=10,command=find).grid(row=0,column=2,padx=10,pady=10)
         Button(newwin,text="replace",padx=10,command=replace).grid(row=1,column=2,padx=10,pady=10)
+
+    def goto(self,event):
+        var = StringVar()
+        newwin = Toplevel(self)
+        newwin.title("Go To")
+        newwin.geometry("350x100")
+        newwin.minsize(350,100)
+        newwin.maxsize(350,100)
+        Entry(newwin,textvariable=var).pack()
+        def goto():
+            self.text.see(f"{var.get()}.0")
+        Button(newwin,text="Go To",padx=10,command=goto).pack(pady=10)
+
+    def time(self,event):
+        from datetime import datetime
+        today =  datetime.now()
+        dt_string = today.strftime("%d/%m/%Y %H:%M:%S")
+        os = self.text.index(INSERT)
+        self.text.insert(os,dt_string)
+
+
+
+
+
 
 
 def cando(allow_var):
