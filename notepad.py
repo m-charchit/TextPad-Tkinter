@@ -18,6 +18,8 @@ class gui(Tk):
         self.show.set(True)
         
 # drawing widgets
+
+
     def draw_menus(self):
         self.filemenu =  Menu(self)
         m1 = Menu(self.filemenu,tearoff=0) 
@@ -44,8 +46,9 @@ class gui(Tk):
         m2.add_separator()
         m2.add_command(label="Find",command=lambda:self.find(None))
         m2.add_command(label="Replace",command=lambda:self.replace(None))
-        m2.add_separator()
         m2.add_command(label="Go To",command=lambda:self.goto(None))
+        m2.add_separator()
+        m2.add_command(label="Select All",command=lambda:self.selectAll(None))
         m2.add_command(label="Insert Date and Time",command=lambda:self.time(None))
 
         self.filemenu.add_cascade(label="Edit",menu=m2)
@@ -92,6 +95,7 @@ class gui(Tk):
         self.bind_all("<Control-Key-C>",self.fontcolor)
         self.bind_all("<Control-Key-g>",self.goto)
         self.bind_all("<Control-Key-t>",self.time)
+        self.bind_all("<Control-Key-a>",self.selectAll)
 
     
     def test(self,event):
@@ -100,6 +104,8 @@ class gui(Tk):
         print(win.filepath == "" )
         print((win.openedtext != win.text.get(1.0, END) and fileopen==True))
         print(self.text.get(1.0, END))
+
+
 
        
     # protocols 
@@ -205,7 +211,7 @@ class gui(Tk):
 
     def theme(self,eff,type):
         if type == "b":
-            self.text.configure(bg="#2b2b2b",fg="#d1dce8",insertbackground='white',selectbackground="blue", )
+            self.text.configure(bg="#2b2b2b",fg="#d1dce8",insertbackground='white',selectbackground="grey", )
         elif type == "w":
             self.text.configure(bg="white")
     def fontcolor(self,event):
@@ -307,10 +313,10 @@ class gui(Tk):
         os = self.text.index(INSERT)
         self.text.insert(os,dt_string)
 
-
-
-
-
+    def selectAll(self,event):
+        self.text.tag_add(SEL, "1.0", END)
+        self.text.mark_set(INSERT, "1.0")
+        self.text.see(INSERT)
 
 
 def cando(allow_var):
@@ -366,5 +372,4 @@ if __name__ == '__main__':
     win.draw_menus()
     win.keypress()
     win.protocols()
-
     win.mainloop()
