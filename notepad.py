@@ -33,34 +33,34 @@ class gui(Tk):
         m1.add_command(label="Exit",command=exit)
         self.filemenu.add_cascade(label="File",menu=m1)
         self.config(menu=self.filemenu)
-        m2 = Menu(self.filemenu,tearoff=0)  
+        self.m2 = Menu(self.filemenu,tearoff=0)  
         
-        m2.add_command(label="Undo",command=self.text.edit_undo)
-        m2.add_command(label="Redo",command=self.text.edit_redo)
+        self.m2.add_command(label="Undo",command=self.text.edit_undo)
+        self.m2.add_command(label="Redo",command=self.text.edit_redo)
         
-        m2.add_separator()
-        m2.add_command(label="Cut",command=self.cut)
-        m2.add_command(label="Copy",command=self.copy)
-        m2.add_command(label="Paste",command=self.paste)
-        m2.add_command(label="Delete",command=self.delete)
-        m2.add_separator()
-        m2.add_command(label="Find",command=lambda:self.find(None))
-        m2.add_command(label="Replace",command=lambda:self.replace(None))
-        m2.add_command(label="Go To",command=lambda:self.goto(None))
-        m2.add_separator()
-        m2.add_command(label="Select All",command=lambda:self.selectAll(None))
-        m2.add_command(label="Insert Date and Time",command=lambda:self.time(None))
+        self.m2.add_separator()
+        self.m2.add_command(label="Cut",command=self.cut)
+        self.m2.add_command(label="Copy",command=self.copy)
+        self.m2.add_command(label="Paste",command=self.paste)
+        self.m2.add_command(label="Delete",command=self.delete)
+        self.m2.add_separator()
+        self.m2.add_command(label="Find",command=lambda:self.find(None))
+        self.m2.add_command(label="Replace",command=lambda:self.replace(None))
+        self.m2.add_command(label="Go To",command=lambda:self.goto(None))
+        self.m2.add_separator()
+        self.m2.add_command(label="Select All",command=lambda:self.selectAll(None))
+        self.m2.add_command(label="Insert Date and Time",command=lambda:self.time(None))
 
-        self.filemenu.add_cascade(label="Edit",menu=m2)
-        m3 = Menu(self.filemenu,tearoff=0)
-        m3.add_checkbutton(label="Word Wrap",onvalue=1,offvalue= 0,variable= self.show,command=self.wrap)
-        m3.add_separator()
-        m3.add_command(label="Dark Theme",command=lambda:self.theme(False,"b"))
-        m3.add_command(label="Light Theme",command= lambda:self.theme(False,"w"))
-        m3.add_separator()
-        m3.add_command(label="Font..",command= lambda:self.font(False))
-        m3.add_command(label="Text Color",command= lambda:self.fontcolor(False))
-        self.filemenu.add_cascade(label="Format",menu=m3)
+        self.filemenu.add_cascade(label="Edit",menu=self.m2)
+        self.m3 = Menu(self.filemenu,tearoff=0)
+        self.m3.add_checkbutton(label="Word Wrap",onvalue=1,offvalue= 0,variable= self.show,command=self.wrap)
+        self.m3.add_separator()
+        self.m3.add_command(label="Dark Theme",command=lambda:self.theme(False,"b"))
+        self.m3.add_command(label="Light Theme",command= lambda:self.theme(False,"w"))
+        self.m3.add_separator()
+        self.m3.add_command(label="Font..",command= lambda:self.font(False))
+        self.m3.add_command(label="Text Color",command= lambda:self.fontcolor(False))
+        self.filemenu.add_cascade(label="Format",menu=self.m3)
         m4 = Menu(self.filemenu,tearoff=0)
         m4.add_command(label="Help",command= self.helpwin)
         m4.add_command(label="About TextPad",command=self.aboutwin)
@@ -96,6 +96,7 @@ class gui(Tk):
         self.bind_all("<Control-Key-g>",self.goto)
         self.bind_all("<Control-Key-t>",self.time)
         self.bind_all("<Control-Key-a>",self.selectAll)
+        self.text.bind("<Button-3>",self.do_popup)
 
     
     def test(self,event):
@@ -104,7 +105,8 @@ class gui(Tk):
         print(win.filepath == "" )
         print((win.openedtext != win.text.get(1.0, END) and fileopen==True))
         print(self.text.get(1.0, END))
-
+    def do_popup(self,event):
+        self.m2.tk_popup(event.x_root,event.y_root)
 
 
        
@@ -213,7 +215,7 @@ class gui(Tk):
         if type == "b":
             self.text.configure(bg="#2b2b2b",fg="#d1dce8",insertbackground='white',selectbackground="grey", )
         elif type == "w":
-            self.text.configure(bg="white")
+            self.text.configure(bg="white",fg="black")
     def fontcolor(self,event):
         mycolor = colorchooser.askcolor()[1]
         self.text.configure(fg=mycolor)
@@ -247,6 +249,7 @@ class gui(Tk):
                                     stopindex = END)
             
             self.text.tag_add("found",idx,f"{idx}+{len(findvar.get())}c")
+            print(idx,f"{idx}+{len(findvar.get())}c")
             self.text.tag_config("found",foreground="red")
             def on_closing():
                 self.text.tag_remove("found","1.0",END)
@@ -317,6 +320,7 @@ class gui(Tk):
         self.text.tag_add(SEL, "1.0", END)
         self.text.mark_set(INSERT, "1.0")
         self.text.see(INSERT)
+
 
 
 def cando(allow_var):
