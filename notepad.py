@@ -43,6 +43,7 @@ class gui(Tk):
         m2.add_command(label="Delete",command=self.delete)
         m2.add_separator()
         m2.add_command(label="Find",command=lambda:self.find(None))
+        m2.add_command(label="Replace",command=lambda:self.replace(None))
 
         m2.add_separator()
         self.filemenu.add_cascade(label="Edit",menu=m2)
@@ -240,8 +241,42 @@ class gui(Tk):
         Label(newwin,text="Find What:").grid(row=0,column=0,padx=5)
         Entry(newwin,textvariable=findvar).grid(row=0,column=1,padx=5)
         Button(newwin,text="Find",padx=10,command=find).grid(row=0,column=2,padx=10)
-        Checkbutton(newwin,text="Match Case",variable=checkvar,onvalue=1,offvalue=0).grid(row=3,column=1)
+        Checkbutton(newwin,text="Match Case",variable=checkvar,onvalue=0,offvalue=1).grid(row=3,column=1)
 
+    def replace(self,event):
+        findvar = StringVar()
+        replacevar = StringVar()
+        newwin = Toplevel(self)
+        newwin.title("Find")
+        newwin.geometry("350x100")
+        newwin.minsize(350,100)
+        newwin.maxsize(350,100)
+        idx = '1.0'
+        def find():
+            global idx
+            self.text.tag_remove('found', '1.0', END) 
+            idx = self.text.search(findvar.get(), 1.0, nocase = 1, 
+                                    stopindex = END)
+            self.text.tag_add("found",idx,f"{idx}+{len(findvar.get())}c")
+            self.text.tag_config("found",foreground="red")
+
+        def replace():
+            self.text.delete(idx,f"{idx}+{len(findvar.get())}c")
+            self.text.insert(idx,replacevar.get())
+            self.text.tag_add("found",idx,f"{idx}+{len(replacevar.get())}c")
+            self.text.tag_config("found",background="yellow",foreground="red")
+        def on_closing():
+            self.text.tag_remove("found","1.0",END)
+            newwin.destroy()
+        newwin.protocol("WM_DELETE_WINDOW", on_closing)
+
+            
+        Label(newwin,text="Find What:").grid(row=0,column=0,padx=5,pady=10)
+        Entry(newwin,textvariable=findvar).grid(row=0,column=1,padx=5,pady=10)
+        Label(newwin,text="Replace with").grid(row=1,column=0,padx=5,pady=10)
+        Entry(newwin,textvariable=replacevar).grid(row=1,column=1,padx=5,pady=10)
+        Button(newwin,text="Find",padx=10,command=find).grid(row=0,column=2,padx=10,pady=10)
+        Button(newwin,text="replace",padx=10,command=replace).grid(row=1,column=2,padx=10,pady=10)
 
 
 def cando(allow_var):
