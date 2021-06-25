@@ -5,13 +5,14 @@ import tkinter.messagebox as msgbox
 import clipboard as cp
 import webbrowser
 from sys import exit
+import subprocess
 fileopen = False
 clickno = 0
 
 class gui(Tk):
     def __init__(self):
         super().__init__()
-        self.geometry("500x400")
+        self.geometry("500x600")
         self.title("TextPad")
         self.filepath = ""
         self.openedtext = ""
@@ -67,6 +68,10 @@ class gui(Tk):
         m4.add_command(label="About TextPad",command=self.aboutwin)
         
         self.filemenu.add_cascade(label="Help",menu=m4)
+        m4 = Menu(self.filemenu,tearoff=0)  
+        m4.add_command(label="Run Python File",command= lambda: self.run(False))
+        
+        self.filemenu.add_cascade(label="Run",menu=m4)
 
     def draw_text(self,wraps):
         self.vsb = Scrollbar(self)
@@ -78,6 +83,15 @@ class gui(Tk):
 
         self.vsb.configure(command=self.text.yview)
         self.hsb.configure(command=self.text.xview)
+        self.vsboutput = Scrollbar(self) 
+        self.hsboutput = Scrollbar(self, orient="horizontal")
+        self.vsboutput.pack(side="right",fill="y")
+        self.hsboutput.pack(side="bottom",fill="x")
+        self.output = Text(win,height=10,bg="white",yscrollcommand = self.vsboutput.set,xscrollcommand = self.hsboutput.set)
+        self.output.pack()
+        
+        self.vsboutput.configure(command=self.output.yview)
+        self.hsboutput.configure(command=self.output.xview)
     
     # detecting keypresses
     def keypress(self):
@@ -97,6 +111,7 @@ class gui(Tk):
         self.bind_all("<Control-Key-g>",self.goto)
         self.bind_all("<Control-Key-t>",self.time)
         self.bind_all("<Control-Key-a>",self.selectAll)
+        self.bind_all("<Control-Key-r>",self.run)
         self.text.bind("<Button-3>",self.do_popup)
 
     
@@ -212,11 +227,11 @@ class gui(Tk):
     def redo(self,event):
         self.text.edit_redo
 
-    def theme(self,eff,type):
+    def theme(self,eff,type="w"):
         if type == "b":
             self.text.configure(bg="#2b2b2b",fg="#d1dce8",insertbackground='white',selectbackground="grey", )
         elif type == "w":
-            self.text.configure(bg="white",fg="black")
+            self.text.configure(bg="white",fg="black",insertbackground='black',selectbackground="blue")
     def fontcolor(self,event):
         mycolor = colorchooser.askcolor()[1]
         self.text.configure(fg=mycolor)
@@ -224,7 +239,7 @@ class gui(Tk):
     def helpwin(self):
         newwin = Toplevel(self)
         newwin.title("Help")
-        Label(newwin,text="Shortcut keys :- \n\nCtrl+shift+f - Select Font\n\nCtrl+w - Unwrap or Wrap Text\n\nCtrl+d - Enable Dark Mode\n\nCtrl+l - Enable light Mode\n\nctrl+shift+c - Choose Font Color\n\nctrl+g - To go to a specific line\n\nctrl+t - To insert date and time",font="comicsans 10 italic bold").pack()
+        Label(newwin,text="Shortcut keys :- \n\nCtrl+shift+f - Select Font\n\nCtrl+w - Unwrap or Wrap Text\n\nCtrl+d - Enable Dark Mode\n\nCtrl+l(l for label) - Enable light Mode\n\nctrl+shift+c - Choose Font Color\n\nctrl+g - To go to a specific line\n\nctrl+t - To insert date and time",font="comicsans 10 italic bold").pack()
         
     def aboutwin(self):
         newwin = Toplevel(self)
@@ -321,6 +336,15 @@ class gui(Tk):
         self.text.tag_add(SEL, "1.0", END)
         self.text.mark_set(INSERT, "1.0")
         self.text.see(INSERT)
+    def run(self,event):
+        if self.filepath == "":
+            msgbox.showwarning("Warning", "please save or open file to run code")
+        else:
+            command = f"python {self.filepath}"
+            pro = subprocess.Popen(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
+            out, error = pro.communicate()
+            self.output.insert('1.0',out)
+
 
 
 
