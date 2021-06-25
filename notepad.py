@@ -4,6 +4,7 @@ from tkinter.filedialog import asksaveasfilename, askopenfilename
 import tkinter.messagebox as msgbox
 import clipboard as cp
 import webbrowser
+from sys import exit
 fileopen = False
 clickno = 0
 
