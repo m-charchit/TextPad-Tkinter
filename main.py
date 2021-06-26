@@ -1,1 +1,3 @@
-print("s")
+for i in range(100):
+	print(i)
+	print("sonty")

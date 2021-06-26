@@ -6,6 +6,7 @@ import clipboard as cp
 import webbrowser
 from sys import exit
 import subprocess
+from words import keywords
 fileopen = False
 clickno = 0
 
@@ -113,7 +114,7 @@ class gui(Tk):
         self.bind_all("<Control-Key-a>",self.selectAll)
         self.bind_all("<Control-Key-r>",self.run)
         self.text.bind("<Button-3>",self.do_popup)
-
+        self.text.bind("<Key>", self.highlightsyntax)
     
     def test(self,event):
         # print(f"123{self.text.get(1.0, END)}123",f"321{fileopen}123")
@@ -329,7 +330,7 @@ class gui(Tk):
         from datetime import datetime
         today =  datetime.now()
         dt_string = today.strftime("%d/%m/%Y %H:%M:%S")
-        os = self.text.index(INSERT)
+            
         self.text.insert(os,dt_string)
 
     def selectAll(self,event):
@@ -344,7 +345,22 @@ class gui(Tk):
             pro = subprocess.Popen(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
             out, error = pro.communicate()
             self.output.insert('1.0',out)
-
+    def highlightsyntax(self,event):
+        color = "#ff7b72"
+        os = self.text.index(INSERT)
+        idx = self.text.search(r'\s',os, backwards=True, regexp=True)
+        if idx == "":
+            idx = "1.0"
+        else:
+            idx = self.text.index(f"{idx}+1c")
+        print(idx)
+        word = self.text.get(idx, "insert")
+        print(word)
+        if word in keywords:
+            self.text.tag_add("highlight",idx,f"{idx}+{len(word)}c")   
+        else:
+            self.text.tag_remove("highlight",idx,f"{idx}+{len(word)}c")   
+        self.text.tag_config("highlight",foreground=color)
 
 
 
